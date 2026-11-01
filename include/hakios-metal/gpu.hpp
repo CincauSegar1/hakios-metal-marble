@@ -15,6 +15,8 @@
 #include <string>
 #include <vector>
 
+#include "hakios-metal/chip.hpp"
+
 namespace hakios::metal {
 
 // --- the requests, as the kernel's driver numbers and lays them out ---------------------------------------------------
@@ -159,6 +161,12 @@ public:
     int param(uint32_t which, uint64_t* value);
     // the chip id without the speed bin above it: 0x06030500 on the phone, 0 if the driver does not say
     uint32_t chipId();
+    // which Adreno family chipId() is (a6xx / a7xx), kUnknown if the driver says nothing or an unlisted part
+    ChipGeneration generation() { return generationOf(chipId()); }
+    // the per-generation facts of this chip (ChipInfo); a zero struct for an unknown part
+    ChipInfo info() { return infoFor(chipId()); }
+    // whether a command stream may be submitted: true on a6xx, gated on a7xx until its registers are tabulated
+    bool usable() { return hakios::metal::usable(generation()); }
     // how many times the kernel has reset a hung GPU in this run (0 when it cannot say)
     uint64_t faults();
 
